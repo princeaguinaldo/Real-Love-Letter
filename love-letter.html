@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💌 A Letter For You</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #ffb7c5;
+    --deep-pink: #e8789a;
+    --rose: #f5c0ce;
+    --cream: #fff8f0;
+    --warm: #ffecd6;
+    --paper: #fffdf5;
+    --ink: #4a2c3a;
+    --purple: #d4a0c0;
+    --star: #ffd6a5;
+    --green: #b5ead7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    min-height: 100vh;
+    font-family: 'Caveat', cursive;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ---- BACKGROUND ---- */
+  .bg {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 30%, #ffd6e7 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, #d4f0ff 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, #fff0f5 0%, transparent 80%),
+      #fff5fa;
+    z-index: 0;
+  }
+
+  /* floating hearts */
+  .hearts { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+  .heart {
+    position: absolute;
+    font-size: 1.2rem;
+    animation: floatUp linear infinite;
+    opacity: 0;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(100vh) rotate(-10deg); opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(-10vh) rotate(10deg); opacity: 0; }
+  }
+
+  /* floating stars */
+  .star-bg { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+  .star-dot {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--deep-pink);
+    animation: twinkle ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+
+  /* ---- SCENE ---- */
+  .scene {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  /* ---- ENVELOPE ---- */
+  .envelope-wrap {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  .envelope-wrap:hover { transform: scale(1.04); }
+
+  .envelope {
+    width: 340px;
+    height: 230px;
+    position: relative;
+    perspective: 900px;
+    filter: drop-shadow(0 8px 32px rgba(232,120,154,0.3));
+  }
+
+  .env-body {
+    width: 340px; height: 230px;
+    background: linear-gradient(145deg, #ffd6e7, #ffb7c5);
+    border-radius: 6px;
+    position: absolute;
+    bottom: 0;
+    overflow: hidden;
+  }
+  .env-body::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 0 0 6px 6px;
+  }
+
+  .env-sticker {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 110px;
+    z-index: 7;
+    padding: 8px;
+    border-radius: 24px;
+    border: 2px solid rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 12px 28px rgba(180,80,120,0.18);
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+  }
+
+  .env-sticker img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 18px;
+    display: block;
+  }
+
+  /* left triangle */
+  .env-left {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 115px 0 115px 170px;
+    border-color: transparent transparent transparent rgba(255,183,197,0.5);
+    z-index: 3;
+  }
+  /* right triangle */
+  .env-right {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 115px 170px 115px 0;
+    border-color: transparent rgba(255,183,197,0.5) transparent transparent;
+    z-index: 3;
+  }
+  /* bottom triangle */
+  .env-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 170px 130px 170px;
+    border-color: transparent transparent #f4a0be transparent;
+    z-index: 4;
+    margin: 0 auto;
+  }
+
+  /* flap */
+  .env-flap {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 130px 170px 0 170px;
+    border-color: #f9c5d8 transparent transparent transparent;
+    z-index: 5;
+    transform-origin: top center;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .env-flap.open {
+    transform: rotateX(180deg);
+  }
+
+  /* seal */
+  .seal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #e8789a, #c95a7a);
+    border-radius: 50%;
+    z-index: 6;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 2px 8px rgba(201,90,122,0.5);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .seal.hidden { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+
+  .open-hint {
+    position: absolute;
+    bottom: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--deep-pink);
+    white-space: nowrap;
+    animation: pulse 1.2s ease-in-out infinite;
+    letter-spacing: 1px;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ---- LETTER RISING FROM ENVELOPE ---- */
+  .letter-rise {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(0px);
+    width: 300px;
+    z-index: 8;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 1s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s;
+  }
+  .letter-rise.rising {
+    transform: translateX(-50%) translateY(-220px);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ---- FOLDED LETTER ---- */
+  .letter-folded {
+    width: 300px;
+    background: var(--paper);
+    border-radius: 4px;
+    box-shadow: 0 4px 24px rgba(180,80,120,0.18);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .fold-top {
+    height: 150px;
+    background: linear-gradient(180deg, #fff5fa, #ffe8f0);
+    border-bottom: 2px dashed #ffb7c5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: bottom center;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    transition: transform 0.7s cubic-bezier(0.4,0,0.2,1), height 0.7s;
+    overflow: hidden;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .fold-top.unfolded {
+    transform: rotateX(180deg);
+    height: 0;
+  }
+
+  .fold-bottom {
+    background: var(--paper);
+    padding: 24px 22px 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 1s cubic-bezier(0.4,0,0.2,1), padding 0.5s;
+  }
+  .fold-bottom.revealed {
+    max-height: 520px;
+    padding: 24px 22px 20px;
+    overflow-y: auto;
+  }
+
+  .fold-bottom.revealed::-webkit-scrollbar {
+    width: 8px;
+  }
+  .fold-bottom.revealed::-webkit-scrollbar-thumb {
+    background: rgba(232,120,154,0.45);
+    border-radius: 999px;
+  }
+
+  /* ---- CAT PIXEL ART ----
+  .pixel-cats-top {
+    display: flex;
+    gap: 18px;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 12px 0 4px;
+  }
+
+  canvas.cat {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  /* ---- LETTER CONTENT ---- */
+  .letter-content {
+    font-family: 'Caveat', cursive;
+    font-size: 19px;
+    color: var(--ink);
+    line-height: 1.7;
+    position: relative;
+  }
+
+  .letter-lines {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 32px,
+      #ffe4ee 32px,
+      #ffe4ee 33px
+    );
+    pointer-events: none;
+  }
+
+  .letter-date {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--deep-pink);
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  .letter-text {
+    position: relative;
+    z-index: 1;
+  }
+
+  .letter-text img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 18px auto;
+    border-radius: 18px;
+    border: 2px solid rgba(255,183,197,0.5);
+    box-shadow: 0 12px 30px rgba(180,80,120,0.12);
+    background: rgba(255,255,255,0.85);
+  }
+
+  .letter-text .photo-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 16px 0;
+  }
+
+  .letter-text .photo-row img {
+    width: calc(50% - 6px);
+    max-width: 140px;
+  }
+
+  .letter-text .photo-caption {
+    font-size: 13px;
+    color: var(--purple);
+    text-align: center;
+    margin-top: 8px;
+    opacity: 0.85;
+  }
+
+  .letter-text p {
+    margin-bottom: 14px;
+  }
+
+  .letter-text .salutation {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--deep-pink);
+    margin-bottom: 10px;
+  }
+
+  .letter-text .sign-off {
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--deep-pink);
+  }
+
+  .heart-inline {
+    display: inline-block;
+    animation: heartbeat 0.9s ease-in-out infinite;
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+  }
+
+  /* bottom cats row */
+  .pixel-cats-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 8px 4px 0;
+  }
+
+  /* ---- CONFETTI BURST ---- */
+  .confetti-wrap {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    overflow: hidden;
+  }
+  .confetto {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    opacity: 0;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ---- TITLE ---- */
+  .title-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--deep-pink);
+    text-align: center;
+    letter-spacing: 2px;
+    animation: fadeInDown 1s ease both;
+    text-shadow: 0 2px 8px rgba(232,120,154,0.3);
+  }
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .subtitle-text {
+    font-family: 'Caveat', cursive;
+    font-size: 20px;
+    color: var(--purple);
+    text-align: center;
+    animation: fadeInDown 1s 0.3s ease both;
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="hearts" id="hearts"></div>
+<div class="star-bg" id="stars"></div>
+<div class="confetti-wrap" id="confetti"></div>
+
+<div class="scene">
+  <div class="title-text">✨ FOR YOU, MY LOVE ✨</div>
+  <div class="subtitle-text">something special is waiting...</div>
+
+  <div class="envelope-wrap" id="envWrap" onclick="openEnvelope()">
+    <div class="envelope">
+      <div class="env-body"></div>
+      <!-- envelope sticker: add an image here to show before opening -->
+      <div class="env-sticker">
+        <img src="C:\Users\Prince Aguinaldo\Downloads\Telegram Desktop\DSC09952 (2).JPG" alt="Sticker photo">
+      </div>
+
+      <!-- letter rises from inside -->
+      <div class="letter-rise" id="letterRise">
+        <div class="letter-folded" id="letterFolded">
+          <!-- top fold (decorative, will fold away) -->
+          <div class="fold-top" id="foldTop">
+            <div class="pixel-cats-top" id="catsTop"></div>
+          </div>
+          <!-- actual letter content -->
+          <div class="fold-bottom" id="foldBottom">
+            <div class="letter-lines"></div>
+            <div class="letter-text">
+              <!-- Add photos here with <img src="path/to/photo.jpg" alt="..."> or use a photo-row for multiple images -->
+              <div class="letter-date">1ST ANNIVERSARY 💕</div>
+              <p class="salutation">My dearest love,</p>
+              <p>
+                Today, is the day that marks the day you said "yes" to an amazing adventure with me.
+                There is no other person in the entire world like you, and I am so grateful to have you by my side. <span class="heart-inline">💖</span>
+              </p>
+              <p>
+                Every day of my life, we have had each others backs.
+                Through every up and down, every twist and turn, you have been my rock, my safe place, my joy.
+                Days without you feel so cold, but days with you feels so warm. I love that. So much. <span class="heart-inline">🌸</span>
+              </p>
+              <p>
+                You are my favorite person in the entire world —
+                and I am the luckiest one alive to call you mine.
+              </p>
+              <p>
+                Thank you so sooo much for being you, for loving me, for being patient with me, for making me laugh, for being my best friend,
+                  for being the most wonderful partner I could have ever dreamed of. I love you more than words can say, and
+                ikaw at ikaw lang, palagi. <span class="heart-inline">🐱</span>
+              </p>
+              <p>
+                I love you. Je t'aime. 너무 사랑해요. Mahal na mahal na mahal kita. <span class="heart-inline">🌸</span>
+              </p>
+              <div class="sign-off">
+                Forever yours,<br>
+                &nbsp;&nbsp;Your luvluv 💌
+              </div>
+            </div>
+            <div class="pixel-cats-bottom" id="catsBottom"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="env-left"></div>
+      <div class="env-right"></div>
+      <div class="env-bottom"></div>
+      <div class="env-flap" id="envFlap"></div>
+      <div class="seal" id="seal">💌</div>
+    </div>
+    <div class="open-hint" id="openHint">click to open ♥</div>
+  </div>
+</div>
+
+<script>
+// -------- FLOATING HEARTS --------
+const heartsEl = document.getElementById('hearts');
+const heartSymbols = ['♥','💕','💗','💖','✿','·˖✦','❀'];
+for (let i = 0; i < 22; i++) {
+  const h = document.createElement('div');
+  h.className = 'heart';
+  h.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+  h.style.left = Math.random() * 100 + 'vw';
+  h.style.fontSize = (0.8 + Math.random() * 1.2) + 'rem';
+  h.style.animationDuration = (7 + Math.random() * 12) + 's';
+  h.style.animationDelay = (Math.random() * 10) + 's';
+  heartsEl.appendChild(h);
+}
+
+// -------- TWINKLING DOTS --------
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 40; i++) {
+  const s = document.createElement('div');
+  s.className = 'star-dot';
+  s.style.left = Math.random() * 100 + 'vw';
+  s.style.top  = Math.random() * 100 + 'vh';
+  s.style.animationDuration = (1.5 + Math.random() * 3) + 's';
+  s.style.animationDelay   = (Math.random() * 4) + 's';
+  s.style.background = ['#ffb7c5','#d4a0c0','#ffd6a5','#b5ead7'][Math.floor(Math.random()*4)];
+  starsEl.appendChild(s);
+}
+
+// -------- PIXEL CAT DRAWING --------
+// Each cat is drawn on a canvas using pixel art
+
+const PINK  = '#ffb7c5';
+const DPINK = '#e8789a';
+const WHITE = '#fff8f0';
+const INK   = '#4a2c3a';
+const CREAM = '#ffecd6';
+const PURP  = '#c8a0d4';
+const NOSE  = '#e87898';
+const EYE   = '#2a1a2a';
+const SKY   = '#b5d8f7';
+
+// Pixel map: each cat is a 2D array of color codes or ''
+// 0 = transparent, colors defined per cat
+
+function drawPixelCat(canvas, pixels, palette, scale) {
+  const rows = pixels.length;
+  const cols = pixels[0].length;
+  canvas.width  = cols * scale;
+  canvas.height = rows * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const code = pixels[r][c];
+      if (code === 0) continue;
+      ctx.fillStyle = palette[code];
+      ctx.fillRect(c * scale, r * scale, scale, scale);
+    }
+  }
+}
+
+// Palette key:
+// 1=body, 2=dark/stripe, 3=eye, 4=nose, 5=white/belly, 6=inner ear, 7=blush, 8=bow/item
+
+// --- CAT A: Pink tabby sitting, tiny bow ---
+const catA_pal = { 1: PINK, 2: DPINK, 3: EYE, 4: NOSE, 5: WHITE, 6: '#f4a0be', 7: '#ffccd5', 8: DPINK };
+const catA = [
+  [0,0,1,1,0,0,1,1,0,0],
+  [0,1,1,1,1,1,1,1,1,0],
+  [0,1,6,1,1,1,1,6,1,0],
+  [1,1,1,1,1,1,1,1,1,1],
+  [1,1,3,1,4,4,1,3,1,1],
+  [1,1,1,1,1,1,1,1,1,1],
+  [1,5,1,2,1,1,2,1,5,1],
+  [1,5,5,5,5,5,5,5,5,1],
+  [0,1,1,1,1,1,1,1,1,0],
+  [0,1,1,0,0,0,0,1,1,0],
+  [0,8,0,0,0,0,0,0,8,0],
+];
+
+// --- CAT B: Chubby grey cat with heart eyes ---
+const catB_pal = { 1:'#cfc0d4', 2:'#a090b4', 3:'#e8789a', 4: NOSE, 5: WHITE, 6:'#e8d8f0', 7:'#ffb7c5', 8:'#e8789a' };
+const catB = [
+  [0,0,1,1,0,0,1,1,0,0],
+  [0,1,1,1,1,1,1,1,1,0],
+  [0,1,6,1,1,1,1,6,1,0],
+  [1,1,1,1,1,1,1,1,1,1],
+  [1,1,3,1,4,4,1,3,1,1],
+  [1,1,1,1,1,1,1,1,1,1],
+  [1,5,2,1,1,1,1,2,5,1],
+  [1,5,5,5,5,5,5,5,5,1],
+  [0,1,1,7,1,1,7,1,1,0],
+  [0,1,1,0,0,0,0,1,1,0],
+];
+
+// --- CAT C: orange cat lying down, sleepy face ---
+const catC_pal = { 1:'#ffcb8a', 2:'#e8a050', 3: EYE, 4: NOSE, 5: WHITE, 6:'#fde0b0', 7:'#ffb7c5', 8:'#e8789a' };
+const catC = [
+  [0,1,1,0,0,1,1,0,0,0],
+  [1,1,1,1,1,1,1,1,0,0],
+  [1,6,1,1,1,1,6,1,1,0],
+  [1,1,1,1,1,1,1,1,1,1],
+  [1,2,2,1,4,4,1,2,2,1],
+  [1,1,1,1,1,1,1,1,1,1],
+  [5,5,5,5,5,5,5,5,5,5],
+  [1,1,1,1,1,1,1,1,1,1],
+  [0,2,0,0,0,0,0,0,2,0],
+];
+
+const catsTopEl = document.getElementById('catsTop');
+[catA, catB, catC].forEach((pixels, i) => {
+  const cv = document.createElement('canvas');
+  cv.className = 'cat';
+  const pals = [catA_pal, catB_pal, catC_pal];
+  drawPixelCat(cv, pixels, pals[i], 7);
+  catsTopEl.appendChild(cv);
+});
+
+// small cats for bottom of letter
+const catsBotEl = document.getElementById('catsBottom');
+
+// tiny love cat left
+const tinyL_pal = { 1: PINK, 2: DPINK, 3: EYE, 4: NOSE, 5: WHITE, 6:'#f4a0be', 7:'#ffccd5', 8:'#e8789a' };
+const tinyL = [
+  [0,1,0,0,1,0],
+  [1,1,1,1,1,1],
+  [1,3,1,1,3,1],
+  [1,1,4,4,1,1],
+  [1,5,1,1,5,1],
+  [0,8,0,0,8,0],
+];
+
+const tinyR_pal = { 1:'#cfc0d4', 2:'#a090b4', 3:'#e8789a', 4: NOSE, 5: WHITE, 6:'#e8d8f0', 7:'#ffb7c5', 8:'#e8789a' };
+const tinyR = [
+  [0,1,0,0,1,0],
+  [1,1,1,1,1,1],
+  [1,3,1,1,3,1],
+  [1,1,4,4,1,1],
+  [1,5,1,1,5,1],
+  [0,0,8,8,0,0],
+];
+
+[tinyL, tinyR].forEach((pix, i) => {
+  const cv = document.createElement('canvas');
+  cv.className = 'cat';
+  drawPixelCat(cv, pix, i === 0 ? tinyL_pal : tinyR_pal, 6);
+  catsBotEl.appendChild(cv);
+});
+
+// -------- OPEN ENVELOPE --------
+let opened = false;
+
+function openEnvelope() {
+  if (opened) return;
+  opened = true;
+
+  document.getElementById('envWrap').style.cursor = 'default';
+  document.getElementById('openHint').style.display = 'none';
+
+  // 1. flip seal away
+  const seal = document.getElementById('seal');
+  seal.classList.add('hidden');
+
+  // 2. open flap
+  setTimeout(() => {
+    document.getElementById('envFlap').classList.add('open');
+  }, 200);
+
+  // 3. letter rises
+  setTimeout(() => {
+    document.getElementById('letterRise').classList.add('rising');
+  }, 800);
+
+  // 4. unfold letter
+  setTimeout(() => {
+    document.getElementById('foldTop').classList.add('unfolded');
+  }, 1600);
+
+  setTimeout(() => {
+    document.getElementById('foldBottom').classList.add('revealed');
+  }, 2100);
+
+  // 5. confetti burst
+  setTimeout(() => burstConfetti(), 2400);
+}
+
+function burstConfetti() {
+  const wrap = document.getElementById('confetti');
+  const colors = ['#ffb7c5','#ffd6a5','#b5ead7','#d4a0c0','#f9c5d8','#c8f0e0','#ffeaa7'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetto';
+    c.style.left  = (10 + Math.random() * 80) + 'vw';
+    c.style.top   = '-20px';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.width  = (6 + Math.random() * 8) + 'px';
+    c.style.height = (6 + Math.random() * 8) + 'px';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    c.style.animationDuration = (1.5 + Math.random() * 2.5) + 's';
+    c.style.animationDelay   = (Math.random() * 0.8) + 's';
+    wrap.appendChild(c);
+    setTimeout(() => c.remove(), 5000);
+  }
+}
+</script>
+</body>
+</html>
